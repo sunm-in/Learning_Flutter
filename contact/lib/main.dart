@@ -12,19 +12,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(),
-        body: Item(),
+        body: ListView(
+          children: [
+            Text('안녕하세요'),
+            Text('안녕하세요'),
+            Text('안녕하세요'),
+            Text('안녕하세요'),
+            Text('안녕하세요'),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class Item extends StatelessWidget {
-  const Item({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Text('안녕하세요'),
     );
   }
 }
