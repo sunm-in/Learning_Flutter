@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -12,36 +12,51 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var name = ['푸들이0', '푸들이1', '푸들이2', '푸들이3', '푸들이4'];
+  var name = ['푸들이0', '푸들이1', '푸들이2'];
   var likeTotal = [0, 0, 0, 0, 0];
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(),
-        bottomNavigationBar: CustomBottomAppBar(),
-        body: ListView.builder(
-            itemCount: 5,
-            itemBuilder: (context, i) {
-              return ListTile(
-                  leading: Text(likeTotal[i].toString()),
-                  title: Text(name[i]),
-                  trailing: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.all(16),
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('좋아요'),
-                    onPressed: () {
-                      setState(() {
-                        likeTotal[i]++;
-                      });
-                    },
-                  ));
-            }),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return DialogWidget();
+              });
+        },
       ),
+      appBar: AppBar(),
+      bottomNavigationBar: CustomBottomAppBar(),
+      body: ListView.builder(
+          itemCount: 3,
+          itemBuilder: (context, i) {
+            return ListTile(
+              leading: Image.asset('assets/img_5835.jpg'),
+              title: Text(name[i]),
+            );
+          }),
+    );
+  }
+}
+
+class DialogWidget extends StatelessWidget {
+  const DialogWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Contact'),
+      content: TextField(),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel')),
+        TextButton(onPressed: () {}, child: Text('OK'))
+      ],
     );
   }
 }
