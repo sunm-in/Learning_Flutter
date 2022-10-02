@@ -4,25 +4,33 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({Key? key}) : super(key: key);
 
-  var a = 1;
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var totalState = 0;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         floatingActionButton: FloatingActionButton(
-          child: Text('+'),
-          onPressed: (){},
+          child: Text(totalState.toString()),
+          onPressed: () {
+            setState(() {
+              totalState++;
+            });
+          },
         ),
         appBar: AppBar(),
         bottomNavigationBar: CustomBottomAppBar(),
         body: ListView.builder(
             itemCount: 5,
             itemBuilder: (context, i) {
-              print(i); // 출력문
               return ListTile(
                 leading: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
