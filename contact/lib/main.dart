@@ -13,19 +13,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var totalState = 0;
+  var name = ['푸들이0', '푸들이1', '푸들이2', '푸들이3', '푸들이4'];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Text(totalState.toString()),
-          onPressed: () {
-            setState(() {
-              totalState++;
-            });
-          },
-        ),
         appBar: AppBar(),
         bottomNavigationBar: CustomBottomAppBar(),
         body: ListView.builder(
@@ -35,7 +28,7 @@ class _MyAppState extends State<MyApp> {
                 leading: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: Image.asset('assets/img_5835.jpg')),
-                title: Text('푸들이'),
+                title: Text(name[i]),
               );
             }),
       ),
