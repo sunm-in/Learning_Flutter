@@ -12,8 +12,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var totalState = 0;
   var name = ['푸들이0', '푸들이1', '푸들이2', '푸들이3', '푸들이4'];
+  var likeTotal = [0, 0, 0, 0, 0];
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +25,21 @@ class _MyAppState extends State<MyApp> {
             itemCount: 5,
             itemBuilder: (context, i) {
               return ListTile(
-                leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset('assets/img_5835.jpg')),
-                title: Text(name[i]),
-              );
+                  leading: Text(likeTotal[i].toString()),
+                  title: Text(name[i]),
+                  trailing: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.all(16),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('좋아요'),
+                    onPressed: () {
+                      setState(() {
+                        likeTotal[i]++;
+                      });
+                    },
+                  ));
             }),
       ),
     );
