@@ -16,10 +16,16 @@ class _MyAppState extends State<MyApp> {
   var likeTotal = [0, 0, 0];
   int total = 3;
 
-  void incrementTotal() {
+  void addOne() {
     setState(() {
       total++;
       Navigator.pop(context);
+    });
+  }
+
+  void appendPoodle(text) {
+    setState(() {
+      name.add(text);
     });
   }
 
@@ -31,7 +37,10 @@ class _MyAppState extends State<MyApp> {
           showDialog(
               context: context,
               builder: (context) {
-                return DialogWidget(state: total, addOne: incrementTotal);
+                return DialogWidget(state: total,
+                    nameList: name,
+                    addOne: addOne,
+                    appendPoodle: appendPoodle);
               });
         },
       ),
@@ -40,7 +49,7 @@ class _MyAppState extends State<MyApp> {
       ),
       bottomNavigationBar: CustomBottomAppBar(),
       body: ListView.builder(
-          itemCount: 3,
+          itemCount: name.length,
           itemBuilder: (context, i) {
             return ListTile(
               leading: Image.asset('assets/img_5835.jpg'),
@@ -52,9 +61,13 @@ class _MyAppState extends State<MyApp> {
 }
 
 class DialogWidget extends StatelessWidget {
-  DialogWidget({Key? key, this.state, required this.addOne}) : super(key: key);
+  DialogWidget(
+      {Key? key, this.state, this.nameList, required this.addOne, this.appendPoodle})
+      : super(key: key);
   final state;
+  var nameList;
   final Function() addOne;
+  final appendPoodle;
 
   var inputData = TextEditingController();
 
@@ -72,25 +85,28 @@ class DialogWidget extends StatelessWidget {
     return AlertDialog(
       title: Text('Contact'),
       content: TextField(
-        // controller: inputData,
-        onChanged: (text) {
-          inputData2['name4'] = text;
-          mapData.addAll(inputData2);
-          print(inputData2);
-          print(mapData);
-        },
+        controller: inputData,
+        // onChanged: (text) {
+        // inputData2['name4'] = text;
+        // mapData.addAll(inputData2);
+        // print(inputData2);
+        // print(mapData);
+        // },
       ),
       actions: [
         Text(state.toString()),
         TextButton(
             onPressed: () {
-              // Navigator.pop(context);
-              print(inputData.text);
+              Navigator.pop(context);
             },
             child: Text('Cancel')),
         TextButton(
             onPressed: () {
               addOne();
+              if (inputData.text != '') {
+                appendPoodle(inputData.text);
+              }
+              print(nameList);
             },
             child: Text('OK'))
       ],
