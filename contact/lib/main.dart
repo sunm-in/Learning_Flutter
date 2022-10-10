@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:contacts_service/contacts_service.dart';
 
 void main() {
   runApp(MaterialApp(home: MyApp()));
@@ -13,29 +14,28 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Dart 특징에서 오래걸리는 줄은 넘어가고 다음 줄 실행하려고 한다.
-  // await 붙으면 다음 줄 실행안하고 기다려준다.
   getPermission() async {
-    var status = await Permission.contacts.status; // 연락처 권한 줬는지 여부
+    var status = await Permission.contacts.status;
     if (status.isGranted) {
-      // 허락했을 때 실행할 코드
       print('허락됨');
+      var contacts = await ContactsService.getContacts(); // 연락처 정보
+      setState(() {
+        name = contacts;
+      });
+
+      // 연락처 추가
+      // var newPerson = Contact();
+      // newPerson.givenName = '푸들';
+      // newPerson.familyName = '이';
+      // await ContactsService.addContact(newPerson);
+
     } else if (status.isDenied) {
-      // 거절했을 때 실행할 코드
       print('거절됨');
-      Permission.contacts.request(); // 요청 팝업 띄우는 코드
-      // openAppSettings(); // 앱설정화면을 켜준다. 거절당하면 유저가 앱설정에서 직접 권한 켜야함.
+      Permission.contacts.request();
     }
   }
 
-  // initState 안에 적은 코드는 위젯 로드될 때 한 번 실행된다.
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getPermission();
-  // }
-
-  var name = ['푸들이0', '푸들이1', '푸들이2'];
+  var name = [];
   var likeTotal = [0, 0, 0];
   int total = 3;
 
@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void appendPoodle(text) {
+  void addContact(text) {
     setState(() {
       name.add(text);
     });
@@ -64,12 +64,12 @@ class _MyAppState extends State<MyApp> {
                     state: total,
                     nameList: name,
                     addOne: addOne,
-                    appendPoodle: appendPoodle);
+                    addContact: addContact);
               });
         },
       ),
       appBar: AppBar(
-        title: Text(total.toString()),
+        title: Text('앱제목'),
         actions: [
           IconButton(
               onPressed: () {
@@ -84,7 +84,7 @@ class _MyAppState extends State<MyApp> {
           itemBuilder: (context, i) {
             return ListTile(
               leading: Image.asset('assets/IMG_5835.JPG'),
-              title: Text(name[i]),
+              title: Text(name[i].givenName),
             );
           }),
     );
@@ -97,12 +97,12 @@ class DialogWidget extends StatelessWidget {
       this.state,
       this.nameList,
       required this.addOne,
-      this.appendPoodle})
+      this.addContact})
       : super(key: key);
   final state;
   var nameList;
   final Function() addOne;
-  final appendPoodle;
+  final addContact;
 
   var inputData = TextEditingController();
 
@@ -113,20 +113,12 @@ class DialogWidget extends StatelessWidget {
   };
   Map inputData2 = {};
 
-  // Map inputData2 = new Map();
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Contact'),
       content: TextField(
         controller: inputData,
-        // onChanged: (text) {
-        // inputData2['name4'] = text;
-        // mapData.addAll(inputData2);
-        // print(inputData2);
-        // print(mapData);
-        // },
       ),
       actions: [
         Text(state.toString()),
@@ -137,11 +129,13 @@ class DialogWidget extends StatelessWidget {
             child: Text('Cancel')),
         TextButton(
             onPressed: () {
-              addOne();
+              var newContact = Contact();
+              newContact.givenName = inputData.text; // 새로운 연락처 만들기
+              ContactsService.addContact(newContact); // 연락처에 추가
               if (inputData.text != '') {
-                appendPoodle(inputData.text);
+                addContact(newContact);
               }
-              print(nameList);
+              Navigator.pop(context);
             },
             child: Text('OK'))
       ],
