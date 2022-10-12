@@ -35,9 +35,10 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  var name = [];
-  var likeTotal = [0, 0, 0];
+  List<Contact> name = [];
+  List<int> likeTotal = [0, 0, 0];
   int total = 3;
+  List test = [];
 
   void addOne() {
     setState(() {
@@ -84,7 +85,7 @@ class _MyAppState extends State<MyApp> {
           itemBuilder: (context, i) {
             return ListTile(
               leading: Image.asset('assets/IMG_5835.JPG'),
-              title: Text(name[i].givenName),
+              title: Text(name[i].givenName ?? '정보없음'),
             );
           }),
     );
@@ -118,6 +119,17 @@ class DialogWidget extends StatelessWidget {
     return AlertDialog(
       title: Text('Contact'),
       content: TextField(
+        decoration: InputDecoration(
+          labelText: 'hint',
+          // hintStyle: TextStyle(color: Colors.grey.shade200),
+          suffixIcon: Icon(Icons.password),
+          filled: true,
+          fillColor: Colors.blue.shade100,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
         controller: inputData,
       ),
       actions: [
