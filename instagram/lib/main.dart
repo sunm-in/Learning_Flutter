@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:instagram/style.dart' as style;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(MaterialApp(theme: style.theme, home: MyApp()));
@@ -14,6 +16,30 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var tab = 0;
+  var list = [1, 2, 3];
+  var map = {'name': ' john', 'age': 20};
+  var data = [];
+
+  getData() async {
+    try {
+      var res = await http
+          .get(Uri.parse('https://codingapple1.github.io/app/data.json'));
+      var content = await jsonDecode(res.body);
+      setState(() {
+        data = content;
+      });
+      // print(res.statusCode);
+      // print(content);
+    } catch (err) {
+      print(err);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +55,7 @@ class _MyAppState extends State<MyApp> {
           )
         ],
       ),
-      body: [Home(), Text('shop')][tab],
+      body: [Home(data: data), Text('shop')][tab],
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -49,33 +75,40 @@ class _MyAppState extends State<MyApp> {
 }
 
 class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({Key? key, this.data}) : super(key: key);
+  final data;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 3,
-      itemBuilder: (context, i) {
-        return Column(
-          children: [
-            Image.asset('/image_0.jpg'),
-            Container(
-              constraints: BoxConstraints(maxWidth: 500),
-              padding: EdgeInsets.all(20),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('좋아요 100',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('글쓴이'),
-                  Text('글내용'),
-                ],
-              ),
-            )
-          ],
-        );
-      },
-    );
+    if (data.isNotEmpty) {
+      print(data);
+      return ListView.builder(
+        itemCount: data.length,
+        itemBuilder: (c, i) {
+          return Column(
+            children: [
+              // Image.asset('/image_0.jpg'),
+              Image.network(data[i]['image']), // 경로가 아니라 웹이미지 주소로 넣을 수 있다.
+              Container(
+                constraints: BoxConstraints(maxWidth: 500),
+                padding: EdgeInsets.all(20),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(data[i]['likes'].toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(data[i]['user']),
+                    Text(data[i]['content']),
+                  ],
+                ),
+              )
+            ],
+          );
+        },
+      );
+    } else {
+      return CircularProgressIndicator(); // 로딩중
+    }
   }
 }
