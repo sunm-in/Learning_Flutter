@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:instagram/style.dart' as style;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/rendering.dart';
 
 void main() {
   runApp(MaterialApp(theme: style.theme, home: MyApp()));
@@ -35,6 +36,12 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  addData(item) {
+    setState(() {
+      data.add(item);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +62,7 @@ class _MyAppState extends State<MyApp> {
           )
         ],
       ),
-      body: [Home(data: data), Text('shop')][tab],
+      body: [Home(data: data, addData: addData), Text('shop')][tab],
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -74,21 +81,56 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class Home extends StatelessWidget {
-  const Home({Key? key, this.data}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key, this.data, this.addData}) : super(key: key);
   final data;
+  final addData;
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  var scroll = ScrollController();
+  var loading = true;
+
+  getMore() async {
+    try {
+      var res = await http
+          .get(Uri.parse('https://codingapple1.github.io/app/more1.json'));
+      var content = await jsonDecode(res.body);
+      widget.addData(content);
+      print('content ==> ${content}');
+    } catch (err) {
+      print(err);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    scroll.addListener(() {
+      if ((scroll.position.pixels == scroll.position.maxScrollExtent) && loading) {
+        getMore();
+        setState(() {
+          loading = false;
+        });
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
-    if (data.isNotEmpty) {
-      print(data);
+    if (widget.data.isNotEmpty) {
+      print(widget.data);
       return ListView.builder(
-        itemCount: data.length,
+        itemCount: widget.data.length,
+        controller: scroll,
         itemBuilder: (c, i) {
           return Column(
             children: [
               // Image.asset('/image_0.jpg'),
-              Image.network(data[i]['image']), // 경로가 아니라 웹이미지 주소로 넣을 수 있다.
+              Image.network(widget.data[i]['image']),
+              // 경로가 아니라 웹이미지 주소로 넣을 수 있다.
               Container(
                 constraints: BoxConstraints(maxWidth: 500),
                 padding: EdgeInsets.all(20),
@@ -96,10 +138,10 @@ class Home extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(data[i]['likes'].toString(),
+                    Text('좋아요 ${widget.data[i]['likes']}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(data[i]['user']),
-                    Text(data[i]['content']),
+                    Text(widget.data[i]['user']),
+                    Text(widget.data[i]['content']),
                   ],
                 ),
               )
