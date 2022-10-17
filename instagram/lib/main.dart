@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
+
+// theme
 import 'package:instagram/style.dart' as style;
+
+// http
 import 'package:http/http.dart' as http;
+
+// scroll
 import 'dart:convert';
 import 'package:flutter/rendering.dart';
 
+// image_picker
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 void main() {
-  runApp(MaterialApp(theme: style.theme, home: MyApp()));
+  runApp(MaterialApp(
+      theme: style.theme,
+      // initialRoute: '/',
+      // routes: {
+      //   '/': (c) => Text('첫페이지'),
+      //   '/detail': (c) => Text('둘째페이지'),
+      // },
+      home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -20,6 +37,7 @@ class _MyAppState extends State<MyApp> {
   var list = [1, 2, 3];
   var map = {'name': ' john', 'age': 20};
   var data = [];
+  var userImage;
 
   getData() async {
     try {
@@ -56,8 +74,23 @@ class _MyAppState extends State<MyApp> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () {},
             icon: Icon(Icons.add_box_outlined),
+            onPressed: () async {
+              var picker = ImagePicker();
+              var image = await picker.pickImage(source: ImageSource.gallery);
+              if (image != null) {
+                setState(() {
+                  userImage = File(image.path);
+                });
+              }
+
+              // Image.File(userImage) 파일경로로 이미지 띄우기
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) => Upload(userImage: userImage)));
+            },
             iconSize: 30,
           )
         ],
@@ -81,6 +114,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+// HomeWidget
 class Home extends StatefulWidget {
   const Home({Key? key, this.data, this.addData}) : super(key: key);
   final data;
@@ -100,7 +134,7 @@ class _HomeState extends State<Home> {
           .get(Uri.parse('https://codingapple1.github.io/app/more1.json'));
       var content = await jsonDecode(res.body);
       widget.addData(content);
-      print('content ==> ${content}');
+      // print('content ==> ${content}');
     } catch (err) {
       print(err);
     }
@@ -110,7 +144,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     scroll.addListener(() {
-      if ((scroll.position.pixels == scroll.position.maxScrollExtent) && loading) {
+      if ((scroll.position.pixels == scroll.position.maxScrollExtent) &&
+          loading) {
         getMore();
         setState(() {
           loading = false;
@@ -152,5 +187,31 @@ class _HomeState extends State<Home> {
     } else {
       return CircularProgressIndicator(); // 로딩중
     }
+  }
+}
+
+// UploadWidget
+class Upload extends StatelessWidget {
+  const Upload({Key? key, this.userImage}) : super(key: key);
+  final userImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.file(userImage, width: 400, height: 350, fit: BoxFit.fill),
+          Text('이미지 업로드 페이지'),
+          TextField(),
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.close)),
+        ],
+      ),
+    );
   }
 }
