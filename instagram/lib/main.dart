@@ -38,6 +38,28 @@ class _MyAppState extends State<MyApp> {
   var map = {'name': ' john', 'age': 20};
   var data = [];
   var userImage;
+  var userContent; // 유저가 입력한 글
+
+  addMyData() {
+    var myData = {
+      'id': data.length,
+      'image': userImage,
+      'likes': 5,
+      'date': 'July 25',
+      'content': userContent,
+      'liked': false,
+      'user': 'John Kim'
+    };
+    setState(() {
+      data.insert(0, myData);
+    });
+  }
+
+  setUserContent(text) {
+    setState(() {
+      userContent = text;
+    });
+  }
 
   getData() async {
     try {
@@ -89,7 +111,10 @@ class _MyAppState extends State<MyApp> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (c) => Upload(userImage: userImage)));
+                      builder: (c) => Upload(
+                          userImage: userImage,
+                          setUserContent: setUserContent,
+                          addMyData: addMyData)));
             },
             iconSize: 30,
           )
@@ -164,8 +189,11 @@ class _HomeState extends State<Home> {
           return Column(
             children: [
               // Image.asset('/image_0.jpg'),
-              Image.network(widget.data[i]['image']),
-              // 경로가 아니라 웹이미지 주소로 넣을 수 있다.
+              widget.data[i]['image'].runtimeType == String
+                  ? Image.network(
+                      widget.data[i]['image']) // 경로가 아니라 웹이미지 주소로 넣을 수 있다.
+                  : Image.file(widget.data[i]['image']),
+
               Container(
                 constraints: BoxConstraints(maxWidth: 500),
                 padding: EdgeInsets.all(20),
@@ -192,19 +220,35 @@ class _HomeState extends State<Home> {
 
 // UploadWidget
 class Upload extends StatelessWidget {
-  const Upload({Key? key, this.userImage}) : super(key: key);
+  const Upload({Key? key, this.userImage, this.setUserContent, this.addMyData})
+      : super(key: key);
   final userImage;
+  final setUserContent;
+  final addMyData;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                addMyData();
+              },
+              icon: Icon(Icons.send))
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.file(userImage, width: 400, height: 350, fit: BoxFit.fill),
           Text('이미지 업로드 페이지'),
-          TextField(),
+          TextField(
+            onChanged: (text) {
+              setUserContent(text);
+            },
+          ),
           IconButton(
               onPressed: () {
                 Navigator.pop(context);
