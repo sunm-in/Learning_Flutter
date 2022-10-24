@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 // theme
 import 'package:instagram/style.dart' as style;
@@ -7,12 +10,17 @@ import 'package:instagram/style.dart' as style;
 import 'package:http/http.dart' as http;
 
 // scroll
-import 'dart:convert';
 import 'package:flutter/rendering.dart';
 
 // image_picker
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+// shared_preferences
+import 'package:shared_preferences/shared_preferences.dart';
+
+// cupoertino
+import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -39,6 +47,13 @@ class _MyAppState extends State<MyApp> {
   var data = [];
   var userImage;
   var userContent; // 유저가 입력한 글
+
+  saveData() async {
+    var storage = await SharedPreferences.getInstance();
+    storage.setString('name', 'john');
+    var result = storage.getString('name');
+    print(result);
+  }
 
   addMyData() {
     var myData = {
@@ -86,6 +101,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getData();
+    saveData();
   }
 
   @override
@@ -181,7 +197,7 @@ class _HomeState extends State<Home> {
 
   Widget build(BuildContext context) {
     if (widget.data.isNotEmpty) {
-      print(widget.data);
+      // print(widget.data);
       return ListView.builder(
         itemCount: widget.data.length,
         controller: scroll,
@@ -201,6 +217,31 @@ class _HomeState extends State<Home> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    GestureDetector(
+                      child: Text(widget.data[i]['user']),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                                pageBuilder: (c, a1, a2) => Profile(),
+                                // transitionsBuilder: (c, a1, a2, child) =>
+                                //     FadeTransition(
+                                //   opacity: a1,
+                                //   child: child,
+                                // ),
+                                transitionsBuilder: (c, a1, a2, child) =>
+                                    SlideTransition(
+                                      position: Tween(
+                                        begin: Offset(-1.0, 0.0),
+                                        end: Offset(0.0, 0.0),
+                                      ).animate(a1),
+                                      child: child,
+                                    )
+                                // transitionDuration:
+                                //     Duration(milliseconds: 1500)
+                                ));
+                      },
+                    ),
                     Text('좋아요 ${widget.data[i]['likes']}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(widget.data[i]['user']),
@@ -256,6 +297,19 @@ class Upload extends StatelessWidget {
               icon: Icon(Icons.close)),
         ],
       ),
+    );
+  }
+}
+
+// ProfileWidget
+class Profile extends StatelessWidget {
+  const Profile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Text('프로필페이지'),
     );
   }
 }
