@@ -1,68 +1,63 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({Key? key}) : super(key: key);
 
-  var a = 1;
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            floatingActionButton: FloatingActionButton(
-              child: Text(a.toString()),
-              onPressed: () {
-                print(a);
-                a++;
-              },
+            appBar: AppBar(
+              title: Text('뭉치라이더'),
+              centerTitle: false,
             ),
-            appBar: AppBar(),
-            body: ListView.builder(
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                // print(index);
-                return ListItem();
-                // Text(index.toString()); // Text 안에는 문자열만 들어갈 수 있다.
-              },
-            ),
+            body: ListItem(),
             bottomNavigationBar: BottomNavBar()));
   }
 }
 
-class ListItem extends StatelessWidget {
+class ListItem extends StatefulWidget {
   const ListItem({Key? key}) : super(key: key);
 
   @override
+  State<ListItem> createState() => _ListItemState();
+}
+
+class _ListItemState extends State<ListItem> {
+  var name = ['김뭉치', '최뭉치', '이뭉치'];
+  var like = [0, 0, 0];
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        Icons.account_circle,
-        size: 40,
-      ),
-      title: Text('홍길동'),
-    );
-    // Container(
-    //   padding: EdgeInsets.all(4),
-    //   child: Row(
-    //     mainAxisAlignment: MainAxisAlignment.start,
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     children: [
-    //       Icon(
-    //         Icons.account_circle,
-    //         size: 50,
-    //       ),
-    //       Text(
-    //         '홍길동',
-    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-    //       )
-    //     ],
-    //   ));
+    return ListView.builder(
+        itemCount: name.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: Text(like[index].toString()),
+            title: Text(name[index]),
+            trailing: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  like[index]++;
+                });
+              },
+              child: Text(
+                '좋아요',
+              ),
+            ),
+          );
+        });
   }
 }
 
