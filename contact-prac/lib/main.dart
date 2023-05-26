@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/cupertino.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    home: MyApp(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -13,30 +16,141 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  var name = ['김뭉치', '최뭉치', '이뭉치'];
+  var order = 0;
+
+  // a.name.compareTo(b.name)
+  var like = [0, 0, 0];
+  var count = 0;
+
+  filteredName(orderBy) {
+    // var tmp = List.from(name); // 원본 변경x, 리스트 복사
+    setState(() {
+      if (order == 1) {
+        name.sort((a, b) => b.compareTo(a));
+        order = 0;
+      } else {
+        name.sort((a, b) => a.compareTo(b));
+        order = 1;
+      }
+    });
+  }
+
+  addPerson(userName) {
+    setState(() {
+      name.add(userName);
+    });
+  }
+
+  deletePerson(key) {
+    setState(() {
+      name.removeAt(key);
+    });
+  }
+
+  doLike(key) {
+    setState(() {
+      like[key]++;
+    });
+  }
+
+  countHandler() {
+    setState(() {
+      count++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-            appBar: AppBar(
-              title: Text('뭉치라이더'),
-              centerTitle: false,
+    return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return DialogWidget(
+                      countHandler: countHandler, addPerson: addPerson);
+                });
+          },
+        ),
+        appBar: AppBar(
+          leading: TextButton(
+            onPressed: () {
+              filteredName(order);
+            },
+            child: Text(
+              '정렬',
+              style: TextStyle(
+                color: Colors.white,
+                backgroundColor: Colors.black,
+              ),
             ),
-            body: ListItem(),
-            bottomNavigationBar: BottomNavBar()));
+          ),
+          title: Text(count.toString()),
+          centerTitle: false,
+        ),
+        body: ListItem(
+            name: name, like: like, doLike: doLike, deletePerson: deletePerson),
+        bottomNavigationBar: BottomNavBar());
   }
 }
 
-class ListItem extends StatefulWidget {
-  const ListItem({Key? key}) : super(key: key);
+class DialogWidget extends StatelessWidget {
+  DialogWidget({Key? key, this.countHandler, this.addPerson}) : super(key: key);
+  final countHandler;
+  final addPerson;
+  var inputValue = TextEditingController();
+  var text = '';
 
   @override
-  State<ListItem> createState() => _ListItemState();
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: 300,
+        height: 300,
+        padding: EdgeInsets.all(30),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Title(color: Colors.black, child: Text('Contact')),
+            TextField(
+              controller: inputValue,
+              onChanged: (value) {
+                text = value;
+              },
+            ),
+            TextButton(
+                onPressed: () {
+                  countHandler();
+
+                  if (inputValue.text != '') {
+                    addPerson(inputValue.text);
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('OK')),
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel'))
+          ],
+        ),
+      ),
+    );
+    ;
+  }
 }
 
-class _ListItemState extends State<ListItem> {
-  var name = ['김뭉치', '최뭉치', '이뭉치'];
-  var like = [0, 0, 0];
+class ListItem extends StatelessWidget {
+  const ListItem(
+      {Key? key, this.name, this.like, this.doLike, this.deletePerson})
+      : super(key: key);
+  final name;
+  final like;
+  final doLike;
+  final deletePerson;
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +158,20 @@ class _ListItemState extends State<ListItem> {
         itemCount: name.length,
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Text(like[index].toString()),
-            title: Text(name[index]),
+            leading: Icon(Icons.person_rounded, size: 30),
+            title: Row(
+              children: [
+                Text(name[index]),
+                TextButton(
+                    onPressed: () {
+                      deletePerson(index);
+                    },
+                    child: Text('삭제'))
+              ],
+            ),
             trailing: ElevatedButton(
               onPressed: () {
-                setState(() {
-                  like[index]++;
-                });
+                doLike(index);
               },
               child: Text(
                 '좋아요',
@@ -58,6 +179,7 @@ class _ListItemState extends State<ListItem> {
             ),
           );
         });
+    ;
   }
 }
 
