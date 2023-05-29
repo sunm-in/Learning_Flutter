@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/cupertino.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+
 void main() {
   runApp(MaterialApp(
     home: MyApp(),
@@ -16,6 +18,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  getPermission() async {
+    var status = await Permission.contacts.status; // 연락처 권한 여부
+    if (status.isGranted) {
+      print('허락');
+    } else if (status.isDenied) {
+      print('거절');
+      Permission.contacts.request();
+      // openAppSettings(); // 앱 설정화면
+    }
+  }
+
+  // 첫 로드될 때 실행
+  @override
+  void initState() {
+    super.initState();
+    getPermission();
+  }
+
   var name = ['김뭉치', '최뭉치', '이뭉치'];
   var order = 0;
 
@@ -88,6 +109,11 @@ class _MyAppState extends State<MyApp> {
           ),
           title: Text(count.toString()),
           centerTitle: false,
+          actions: [
+            IconButton(onPressed: () {
+              getPermission();
+            }, icon: Icon(Icons.contacts))
+          ],
         ),
         body: ListItem(
             name: name, like: like, doLike: doLike, deletePerson: deletePerson),
